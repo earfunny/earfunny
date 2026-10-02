@@ -1,10 +1,11 @@
-- 👋 Hi, I’m @earfunny
-- 👀 I’m interested in trading cryptocurrency 
-- 🌱 I’m currently learning how's to build the sites for made money 
-- 💞️ I’m looking to collaborate on 🌎
-- 📫 How to reach me ??? Just sent me email to vanjuki81@gmail.com
+# Halo, saya earfunny 👋
 
-<!---
-earfunny/earfunny is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
-You can click the Preview link to take a look at your changes.
---->
+Saya sedang belajar membuat website, tertarik pada trading cryptocurrency, dan terbuka untuk kolaborasi.
+
+## Portfolio
+
+Portfolio ini dibuat sebagai halaman pencarian personal yang bisa difilter. Buka [`index.html`](./index.html) untuk melihat halaman atau mengaktifkan GitHub Pages dari branch `main` di pengaturan repository.
+
+## Kontak
+
+[vanjuki81@gmail.com](mailto:vanjuki81@gmail.com) · [GitHub](https://github.com/earfunny)
