@@ -9,6 +9,7 @@ Portfolio ini dibuat sebagai halaman pencarian personal yang bisa difilter. Buka
 ### Artikel
 
 - [Membangun mesin AI offline](./artikel-ai-offline.html) — panduan menjalankan asisten AI lokal dengan Ollama dan Python.
+- [Apa yang paling sering dicari orang di internet?](./artikel-pencarian-web.html) — menyusuri kebiasaan dan rasa penasaran di balik kolom pencarian.
 
 ## Kontak
 
