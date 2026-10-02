@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f6f5f0">
+    <meta
+      name="description"
+      content="Panduan menjalankan asisten AI lokal secara offline dengan Ollama, model Qwen, dan Python."
+    >
+    <title>Membangun Mesin AI Offline — earfunny</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --paper: #f6f5f0;
+        --ink: #20221e;
+        --muted: #777970;
+        --line: #dfdfd7;
+        --green: #c7f36b;
+        --white: #fffefa;
+        --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        --sans: Inter, "Avenir Next", Avenir, "Segoe UI", sans-serif;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 25px;
+      }
+
+      body {
+        min-width: 320px;
+        margin: 0;
+        background:
+          radial-gradient(ellipse at 50% 0, rgb(255 255 255 / 78%), transparent 44rem),
+          var(--paper);
+        color: var(--ink);
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .shell {
+        width: min(100% - 48px, 1056px);
+        margin-inline: auto;
+      }
+
+      .topbar {
+        display: flex;
+        min-height: 76px;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 11px;
+        color: inherit;
+        font-size: 14px;
+        font-weight: 760;
+        letter-spacing: -0.04em;
+        text-decoration: none;
+      }
+
+      .brand-mark {
+        display: grid;
+        width: 30px;
+        height: 30px;
+        place-items: center;
+        border: 1.5px solid var(--ink);
+        border-radius: 50%;
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: -0.11em;
+      }
+
+      .back-link,
+      .eyebrow,
+      .meta,
+      .toc-label,
+      .footer-note {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .back-link {
+        color: var(--muted);
+        text-decoration: none;
+      }
+
+      .back-link:hover {
+        color: var(--ink);
+      }
+
+      .back-link:focus-visible,
+      a:focus-visible {
+        border-radius: 3px;
+        outline: 2px solid #779c35;
+        outline-offset: 4px;
+      }
+
+      main {
+        padding: 68px 0 88px;
+      }
+
+      .article-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 230px;
+        gap: 65px;
+        align-items: start;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      article {
+        min-width: 0;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        color: var(--muted);
+      }
+
+      .eyebrow::before {
+        width: 8px;
+        height: 8px;
+        border-radius: 2px;
+        transform: rotate(45deg);
+        background: var(--green);
+        content: "";
+      }
+
+      h1 {
+        max-width: 700px;
+        margin: 20px 0 17px;
+        font-size: clamp(38px, 6vw, 66px);
+        font-weight: 650;
+        letter-spacing: -0.075em;
+        line-height: 1;
+      }
+
+      .dek {
+        max-width: 650px;
+        margin: 0;
+        color: #666960;
+        font-size: 18px;
+        line-height: 1.65;
+      }
+
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px 18px;
+        margin-top: 24px;
+        color: #92938a;
+        font-size: 9px;
+      }
+
+      .article-body {
+        margin-top: 42px;
+        font-size: 15px;
+        line-height: 1.8;
+      }
+
+      .article-body h2 {
+        margin: 48px 0 14px;
+        font-size: 27px;
+        font-weight: 640;
+        letter-spacing: -0.06em;
+        line-height: 1.15;
+        scroll-margin-top: 25px;
+      }
+
+      .article-body h3 {
+        margin: 25px 0 8px;
+        font-size: 17px;
+        font-weight: 650;
+        letter-spacing: -0.03em;
+      }
+
+      .article-body p {
+        margin: 12px 0;
+        color: #55584f;
+      }
+
+      .article-body strong {
+        color: var(--ink);
+        font-weight: 650;
+      }
+
+      .article-body a {
+        text-decoration-color: #9db56b;
+        text-underline-offset: 3px;
+      }
+
+      .article-body ul,
+      .article-body ol {
+        padding-left: 22px;
+        color: #55584f;
+      }
+
+      .article-body li {
+        margin: 6px 0;
+        padding-left: 4px;
+      }
+
+      .callout {
+        margin: 24px 0;
+        padding: 17px 19px;
+        border-left: 3px solid #a5ca5a;
+        border-radius: 0 9px 9px 0;
+        background: #edf3e1;
+      }
+
+      .callout p {
+        margin: 0;
+        font-size: 14px;
+      }
+
+      .callout strong {
+        display: block;
+        margin-bottom: 3px;
+      }
+
+      .code-wrap {
+        overflow: hidden;
+        margin: 18px 0 22px;
+        border: 1px solid #343730;
+        border-radius: 10px;
+        background: #22241f;
+      }
+
+      .code-label {
+        padding: 9px 14px;
+        border-bottom: 1px solid #393b34;
+        color: #b9bcaf;
+        font-family: var(--mono);
+        font-size: 9px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      pre {
+        overflow-x: auto;
+        margin: 0;
+        padding: 16px;
+        color: #edf0e5;
+        font-family: var(--mono);
+        font-size: 12px;
+        line-height: 1.75;
+        tab-size: 4;
+      }
+
+      code {
+        font-family: var(--mono);
+        font-size: 0.88em;
+      }
+
+      p code,
+      li code {
+        padding: 2px 5px;
+        border-radius: 4px;
+        background: #eae9e1;
+        color: #33362e;
+        white-space: nowrap;
+      }
+
+      .toc {
+        position: sticky;
+        top: 25px;
+        margin-top: 10px;
+        padding: 17px;
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        background: rgb(255 254 250 / 72%);
+      }
+
+      .toc-label {
+        margin: 0 0 12px;
+        color: #898a82;
+        font-size: 9px;
+      }
+
+      .toc ol {
+        display: grid;
+        gap: 9px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .toc a {
+        color: #666960;
+        font-size: 11px;
+        line-height: 1.45;
+        text-decoration: none;
+      }
+
+      .toc a:hover {
+        color: var(--ink);
+      }
+
+      .article-end {
+        margin-top: 50px;
+        padding: 22px;
+        border-radius: 12px;
+        background: var(--ink);
+        color: white;
+      }
+
+      .article-end p {
+        margin: 0 0 13px;
+        color: #d2d3ca;
+        font-size: 13px;
+      }
+
+      .article-end a {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 12px;
+        border-radius: 7px;
+        background: var(--green);
+        color: var(--ink);
+        font-size: 11px;
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      .article-end a:focus-visible {
+        outline-color: white;
+      }
+
+      footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 19px 0 25px;
+        border-top: 1px solid var(--line);
+        color: #92938a;
+      }
+
+      .footer-note {
+        font-size: 9px;
+      }
+
+      @media (max-width: 760px) {
+        .article-layout {
+          grid-template-columns: 1fr;
+          gap: 32px;
+        }
+
+        .toc {
+          position: static;
+          grid-row: 1;
+        }
+
+        .toc ol {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 600px) {
+        .shell {
+          width: min(100% - 36px, 560px);
+        }
+
+        .topbar {
+          min-height: 66px;
+        }
+
+        main {
+          padding: 44px 0 60px;
+        }
+
+        .dek {
+          font-size: 16px;
+        }
+
+        .article-body {
+          margin-top: 32px;
+          font-size: 14px;
+        }
+
+        .article-body h2 {
+          margin-top: 39px;
+          font-size: 24px;
+        }
+
+        .toc ol {
+          grid-template-columns: 1fr;
+        }
+
+        footer {
+          flex-direction: column;
+          gap: 8px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <a class="brand" href="index.html" aria-label="earfunny, kembali ke halaman utama">
+          <span class="brand-mark" aria-hidden="true">ef</span>
+          <span>earfunny</span>
+        </a>
+        <a class="back-link" href="index.html">← kembali ke portfolio</a>
+      </header>
+
+      <main>
+        <div class="article-layout">
+          <article>
+            <header>
+              <div class="eyebrow">catatan belajar / kecerdasan buatan</div>
+              <h1>Membangun mesin AI offline.</h1>
+              <p class="dek">Buat asisten AI yang berjalan di komputer sendiri dengan Ollama dan Python. Setelah model diunduh, kamu bisa mengobrol dengannya tanpa mengirim prompt ke layanan cloud.</p>
+              <div class="meta">
+                <span>oleh earfunny</span>
+                <span>8 menit membaca</span>
+                <span>panduan pemula</span>
+              </div>
+            </header>
+
+            <div class="article-body">
+              <p>Menjalankan AI sendiri terdengar rumit, tetapi kita tidak perlu melatih model dari nol. Cara yang lebih praktis adalah mengunduh model bahasa yang sudah dilatih, menjalankannya secara lokal, lalu menghubungkannya ke program kecil yang kita buat.</p>
+              <p>Dalam panduan ini kita memakai <a href="https://ollama.com/" target="_blank" rel="noreferrer">Ollama</a> sebagai runtime dan model <code>qwen2.5:3b</code> sebagai contoh. Ollama menyediakan API lokal; Python mengirim pertanyaan ke API tersebut dan menampilkan jawaban model.</p>
+
+              <aside class="callout">
+                <p><strong>“Offline” dimulai setelah model tersedia di komputer.</strong>Instalasi dan unduhan model pertama kali memerlukan internet. Sesudah itu, contoh di sini membuat inferensi melalui server lokal Ollama—tanpa API key atau layanan AI cloud.</p>
+              </aside>
+
+              <h2 id="yang-dibutuhkan">Yang dibutuhkan</h2>
+              <ul>
+                <li>Komputer Windows, macOS, atau Linux yang bisa memasang Ollama.</li>
+                <li>Ruang disk untuk model. Model 3B terkuantisasi berukuran beberapa gigabita; ukuran tepatnya dapat berubah.</li>
+                <li>RAM yang cukup untuk model dan aplikasi lain. <strong>8 GB RAM atau lebih adalah titik awal yang lebih nyaman</strong>; model yang lebih besar memerlukan lebih banyak sumber daya.</li>
+                <li>Python 3 untuk menjalankan contoh program. Tidak wajib untuk mencoba model lewat terminal.</li>
+              </ul>
+              <p>CPU dapat digunakan tanpa GPU khusus, tetapi kecepatannya bergantung pada perangkat. GPU yang didukung dapat membantu mempercepat proses, tetapi bukan syarat untuk mengikuti panduan ini.</p>
+
+              <h2 id="pasang-ollama">1. Pasang Ollama</h2>
+              <p>Unduh installer untuk sistem operasi kamu dari <a href="https://ollama.com/download" target="_blank" rel="noreferrer">halaman unduhan Ollama</a>, lalu jalankan installer. Setelah terpasang, buka terminal baru—PowerShell di Windows atau Terminal di macOS/Linux—dan periksa bahwa perintahnya tersedia:</p>
+              <div class="code-wrap">
+                <div class="code-label">PowerShell / Terminal</div>
+                <pre><code>ollama --version</code></pre>
+              </div>
+              <p>Ollama biasanya menjalankan layanan lokal yang dibutuhkan oleh perintah dan API-nya. Kalau perintah belum dikenali, tutup lalu buka terminal kembali; pastikan instalasi selesai sebelum mencoba lagi.</p>
+
+              <h2 id="unduh-model">2. Unduh dan coba model</h2>
+              <p>Ambil model selagi komputer masih terhubung ke internet. Tag <code>qwen2.5:3b</code> adalah contoh model kecil untuk memulai, bukan jaminan akan cocok untuk semua bahasa, perangkat, atau kebutuhan:</p>
+              <div class="code-wrap">
+                <div class="code-label">PowerShell / Terminal</div>
+                <pre><code>ollama pull qwen2.5:3b
+ollama run qwen2.5:3b</code></pre>
+              </div>
+              <p>Setelah unduhan selesai, perintah kedua membuka percakapan di terminal. Coba bertanya, lalu ketik <code>/bye</code> untuk keluar. Daftar model yang sudah tersimpan bisa dilihat dengan:</p>
+              <div class="code-wrap">
+                <div class="code-label">PowerShell / Terminal</div>
+                <pre><code>ollama list</code></pre>
+              </div>
+              <p>Nama dan ketersediaan tag model dapat berubah. Bila contoh tag tidak ditemukan, pilih model teks yang tersedia di <a href="https://ollama.com/library" target="_blank" rel="noreferrer">library Ollama</a>, lalu gunakan tag yang sama saat mengunduh dan menjalankannya. Perhatikan ukuran model dan lisensinya.</p>
+
+              <h2 id="buat-asisten-python">3. Hubungkan ke Python</h2>
+              <p>Dengan model sudah terunduh, buat file bernama <code>asisten.py</code>. Contoh berikut hanya memakai pustaka bawaan Python dan endpoint chat lokal Ollama:</p>
+              <div class="code-wrap">
+                <div class="code-label">asisten.py</div>
+                <pre><code>import json
+from urllib.request import Request, urlopen
+
+MODEL = "qwen2.5:3b"
+
+def tanya(prompt):
+    payload = {
+        "model": MODEL,
+        "stream": False,
+        "messages": [
+            {
+                "role": "system",
+                "content": "Jawab dengan jelas dan ringkas dalam bahasa Indonesia.",
+            },
+            {"role": "user", "content": prompt},
+        ],
+    }
+    request = Request(
+        "http://localhost:11434/api/chat",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+
+    with urlopen(request, timeout=120) as response:
+        result = json.load(response)
+    return result["message"]["content"]
+
+while True:
+    pertanyaan = input("Kamu (ketik 'keluar' untuk selesai): ")
+    if pertanyaan.strip().lower() == "keluar":
+        break
+    if pertanyaan.strip():
+        print(f"\nAI: {tanya(pertanyaan)}\n")</code></pre>
+              </div>
+              <p>Simpan file, pastikan model tersedia, lalu jalankan:</p>
+              <div class="code-wrap">
+                <div class="code-label">PowerShell / Terminal</div>
+                <pre><code>python asisten.py</code></pre>
+              </div>
+              <p>Di beberapa instalasi Windows, perintah Python bisa bernama <code>py</code>; coba <code>py asisten.py</code> jika <code>python</code> tidak ditemukan. Program ini mengirim permintaan ke <code>localhost</code>, yaitu komputer kamu sendiri, bukan endpoint cloud.</p>
+
+              <h2 id="uji-tanpa-internet">4. Uji dalam keadaan offline</h2>
+              <ol>
+                <li>Pastikan unduhan model sudah selesai dan <code>ollama list</code> menampilkan modelnya.</li>
+                <li>Jalankan <code>python asisten.py</code> saat Ollama aktif, lalu coba pertanyaan sederhana.</li>
+                <li>Putuskan koneksi internet dan ulangi percobaan. Jika model sudah tersedia dan layanan lokal berjalan, jawaban tetap dihasilkan di perangkat.</li>
+              </ol>
+              <p>Jika komputer tidur atau Ollama ditutup, jalankan kembali Ollama sebelum membuka program. Aplikasi yang membutuhkan model ini juga harus mengarah ke API lokal, bukan mengirim permintaan ke layanan AI lain.</p>
+
+              <h2 id="batasan-keamanan">Privasi, keamanan, dan batasan</h2>
+              <p>Dengan contoh ini, prompt dikirim ke proses Ollama di komputer yang sama. Itu mengurangi kebutuhan mengirim isi percakapan ke penyedia model cloud, tetapi bukan jaminan privasi untuk seluruh komputer. Aplikasi lain, plugin, malware, sinkronisasi file, atau konfigurasi jaringan yang berbeda tetap dapat mengakses data.</p>
+              <ul>
+                <li>Jangan ubah layanan agar dapat diakses dari jaringan publik kecuali kamu paham autentikasi, firewall, dan pengamanan aksesnya.</li>
+                <li>Jangan menganggap jawaban model selalu benar. Periksa fakta penting, terutama untuk kesehatan, hukum, keuangan, dan keputusan berisiko.</li>
+                <li>Model lokal tidak otomatis memiliki informasi terbaru, akses web, atau kemampuan membuka dokumen. Fitur tambahan seperti pencarian dokumen lokal perlu dibangun secara terpisah.</li>
+                <li>Unduh model dari sumber tepercaya dan baca lisensinya sebelum dipakai atau dibagikan dalam produk.</li>
+              </ul>
+
+              <h2 id="troubleshooting">Kalau belum berhasil</h2>
+              <h3>Perintah <code>ollama</code> tidak ditemukan</h3>
+              <p>Pastikan installer selesai, buka terminal baru, lalu coba <code>ollama --version</code>. Jika masih gagal, ikuti petunjuk instalasi untuk sistem operasi kamu.</p>
+              <h3>Python mendapat koneksi ditolak</h3>
+              <p>Pastikan Ollama sudah berjalan dan model pernah berhasil diunduh. Periksa nama model di <code>ollama list</code>; nilai <code>MODEL</code> di script harus cocok dengan tag yang tersedia.</p>
+              <h3>Jawaban lambat atau komputer kehabisan memori</h3>
+              <p>Coba model yang lebih kecil atau tutup aplikasi lain. Model kecil juga memiliki kemampuan dan kualitas jawaban yang berbeda—ukuran lebih besar bukan selalu pilihan terbaik untuk perangkat terbatas.</p>
+
+              <h2 id="penutup">Langkah berikutnya</h2>
+              <p>Sekarang kamu punya dasar sebuah asisten AI lokal: runtime, model, dan program kecil yang menghubungkan keduanya. Dari sini, kamu bisa menambahkan riwayat percakapan, antarmuka web lokal, atau pencarian atas dokumen milik sendiri. Mulai dari versi sederhana, uji privasi dan kinerjanya, lalu kembangkan sesuai kebutuhan.</p>
+
+              <div class="article-end">
+                <p>Sudah mencoba atau punya ide pengembangan? Saya terbuka untuk ngobrol dan berkolaborasi.</p>
+                <a href="mailto:vanjuki81@gmail.com?subject=Artikel%20AI%20offline">Hubungi earfunny →</a>
+              </div>
+            </div>
+          </article>
+
+          <nav class="toc" aria-label="Daftar isi">
+            <p class="toc-label">di artikel ini</p>
+            <ol>
+              <li><a href="#yang-dibutuhkan">Yang dibutuhkan</a></li>
+              <li><a href="#pasang-ollama">1. Pasang Ollama</a></li>
+              <li><a href="#unduh-model">2. Unduh model</a></li>
+              <li><a href="#buat-asisten-python">3. Hubungkan Python</a></li>
+              <li><a href="#uji-tanpa-internet">4. Uji offline</a></li>
+              <li><a href="#batasan-keamanan">Privasi &amp; batasan</a></li>
+              <li><a href="#troubleshooting">Troubleshooting</a></li>
+              <li><a href="#penutup">Langkah berikutnya</a></li>
+            </ol>
+          </nav>
+        </div>
+      </main>
+
+      <footer>
+        <span class="footer-note">dibuat dengan rasa ingin tahu</span>
+        <span class="footer-note">internet kecil, ide besar © earfunny</span>
+      </footer>
+    </div>
+  </body>
+</html>
