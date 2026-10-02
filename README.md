@@ -12,4 +12,4 @@ Portfolio ini dibuat sebagai halaman pencarian personal yang bisa difilter. Buka
 
 ## Kontak
 
-[vanjuki81@gmail.com](mailto:vanjuki81@gmail.com) · [GitHub](https://github.com/earfunny)
+[earfunny.nft@ethermail.io](mailto:earfunny.nft@ethermail.io) · [GitHub](https://github.com/earfunny)
